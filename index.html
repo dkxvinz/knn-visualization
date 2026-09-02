@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNN Classification Step-by-Step Visualization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+        body { background-color: #F8FAFC; color: #334155; margin: 0; padding: 40px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { font-size: 2.2rem; font-weight: 600; color: #1E293B; margin: 0 0 8px 0; }
+        .header p { font-size: 1.05rem; color: #64748B; margin: 0; }
+        
+        .concept-card { background: #FFFFFF; border-radius: 16px; padding: 24px 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); margin-bottom: 20px; border: 1px solid #F1F5F9; }
+        .concept-card p { line-height: 1.6; font-size: 0.98rem; color: #334155; margin: 0 0 20px 0; }
+        
+        .steps-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .step-item { background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px 10px; text-align: center; transition: all 0.2s; }
+        .step-item.active { background: #EFF6FF; border-color: #3B82F6; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15); }
+        .step-item .step-badge { font-size: 0.75rem; font-weight: 600; color: #3B82F6; margin-bottom: 4px; display: block; }
+        .step-item .step-title { font-size: 0.9rem; font-weight: 600; color: #1E293B; margin-bottom: 4px; }
+        .step-item .step-desc { font-size: 0.75rem; color: #64748B; line-height: 1.2; }
+
+        .control-bar { background: #E2E8F0; border-radius: 10px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; flex-wrap: wrap; }
+        .status-text { font-weight: 500; color: #1E293B; font-size: 0.95rem; flex: 1; min-width: 250px; }
+        
+        .k-control-group { display: flex; align-items: center; gap: 10px; background: #FFFFFF; padding: 6px 16px; border-radius: 8px; border: 1px solid #CBD5E1; }
+        .k-control-group label { font-size: 0.9rem; font-weight: 600; color: #1E293B; }
+        .k-control-group input[type=range] { width: 100px; cursor: pointer; }
+        .k-value-badge { background: #2563EB; color: #FFFFFF; font-weight: 600; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; min-width: 24px; text-align: center; }
+
+        .btn-group { display: flex; gap: 8px; align-items: center; }
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: #2563EB; color: #FFFFFF; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-secondary { background: #475569; color: #FFFFFF; }
+        .btn-secondary:hover { background: #334155; }
+        .btn:disabled { background: #94A3B8; cursor: not-allowed; }
+
+        .plot-container { background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); border: 1px solid #F1F5F9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>KNN Classification Visualization</h1>
+        <p>จำลองกระบวนการทำงานของ KNN Classification (Interactive Step-by-Step Visualization)</p>
+    </div>
+
+    <div class="concept-card">
+        <p><b>แนวคิด:</b> KNN เป็น Supervised Machine Learning สำหรับจำแนกประเภทข้อมูล (Classification) โดยคำนวณระยะห่างระหว่างจุดข้อมูลใหม่กับเพื่อนบ้านในชุดข้อมูล แล้วโหวตเลือก Class ตามเสียงข้างมาก (Majority Vote) ของ K อันดับแรก</p>
+        
+        <div class="steps-grid">
+            <div class="step-item" id="card-step-1">
+                <span class="step-badge">STEP 1</span>
+                <div class="step-title">กำหนด K</div>
+                <div class="step-desc" id="card-desc-1">กำหนดจำนวน K = 3</div>
+            </div>
+            <div class="step-item" id="card-step-2">
+                <span class="step-badge">STEP 2</span>
+                <div class="step-title">รับข้อมูลใหม่</div>
+                <div class="step-desc">นำเข้าจุด Test Point [5,5,5,5,5]</div>
+            </div>
+            <div class="step-item" id="card-step-3">
+                <span class="step-badge">STEP 3</span>
+                <div class="step-title">คำนวณระยะห่าง</div>
+                <div class="step-desc">หา Euclidean Distance ทุกจุด</div>
+            </div>
+            <div class="step-item" id="card-step-4">
+                <span class="step-badge">STEP 4</span>
+                <div class="step-title">คัดเลือก K อันดับ</div>
+                <div class="step-desc" id="card-desc-4">เลือกเพื่อนบ้านใกล้สุด 3 จุด</div>
+            </div>
+            <div class="step-item" id="card-step-5">
+                <span class="step-badge">STEP 5</span>
+                <div class="step-title">Majority Vote</div>
+                <div class="step-desc">โหวตคลาสเสียงข้างมาก</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-bar">
+        <!-- ตัวปรับค่า K เริ่มต้นที่ 3 -->
+        <div class="k-control-group">
+            <label for="k-slider">ปรับค่า K:</label>
+            <input type="range" id="k-slider" min="1" max="15" value="3" oninput="updateK(this.value)">
+            <span class="k-value-badge" id="k-display">3</span>
+        </div>
+
+        <div class="status-text" id="status-text">ขั้นตอนที่ 1: กำหนดค่า K</div>
+        
+        <div class="btn-group">
+            <button class="btn btn-secondary" id="btn-prev" onclick="changeStep(-1)" disabled>ถอยกลับ</button>
+            <button class="btn btn-primary" id="btn-next" onclick="changeStep(1)">ขั้นตอนถัดไป</button>
+            <button class="btn btn-secondary" onclick="resetSteps()">เริ่มต้นใหม่</button>
+        </div>
+    </div>
+
+    <div class="plot-container">
+        <div id="plotly-div" style="width:100%;height:520px;"></div>
+    </div>
+</div>
+
+<script>
+const dataPayload = {"X_train_raw": [[2, 3, 4, 2, 3], [3, 2, 5, 3, 2], [2, 4, 4, 3, 3], [3, 3, 5, 2, 4], [2, 2, 4, 3, 3], [6, 7, 6, 7, 6], [7, 6, 7, 6, 7], [6, 6, 8, 7, 6], [7, 7, 7, 8, 7], [6, 8, 6, 7, 8], [10, 11, 10, 11, 10], [11, 10, 11, 10, 11], [10, 10, 12, 11, 10], [11, 11, 11, 12, 11], [10, 12, 10, 11, 12]], "X_train_2d": [[-9.113313852976132, -0.3746960077078141], [-8.71785423155538, 1.513110187427945], [-8.166153903942638, -0.9115310775142934], [-7.833618036494579, 0.3042804339296637], [-9.09254358789431, 0.2023862899343658], [-0.9083975464797943, -0.9003048909875562], [-0.5758616790317346, 0.31550662045640043], [-0.6376237559054504, 1.0868255051864206], [0.8552633770594117, -0.2012048354322256], [0.4598037556386619, -2.089011030567985], [7.999025515580377, -0.3317394036635512], [8.331561383028436, 0.8840721077804056], [8.26979930615472, 1.6553909925104258], [9.76268643911958, 0.36736065189177963], [9.367226817698834, -1.5204455432439805]], "y_train": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "C", "C", "C", "C", "C"], "test_raw": [5, 5, 5, 5, 5], "test_actual": "B", "test_2d": [-4.082413261028329, -0.5056111930120799]};
+let currentStep = 1;
+let kValue = 3; // กำหนดค่าเริ่มต้นเป็น 3
+
+function euclideanDistance(a, b) {
+    let sum = 0;
+    for (let i = 0; i < a.length; i++) {
+        sum += Math.pow(a[i] - b[i], 2);
+    }
+    return Math.sqrt(sum);
+}
+
+function calculateKNN() {
+    let distances = [];
+    for (let i = 0; i < dataPayload.X_train_raw.length; i++) {
+        let dist = euclideanDistance(dataPayload.X_train_raw[i], dataPayload.test_raw);
+        distances.push({
+            index: i,
+            dist: dist,
+            label: dataPayload.y_train[i],
+            pos2d: dataPayload.X_train_2d[i]
+        });
+    }
+    distances.sort((a, b) => a.dist - b.dist);
+    let neighbors = distances.slice(0, kValue);
+    
+    let counts = {};
+    neighbors.forEach(n => {
+        counts[n.label] = (counts[n.label] || 0) + 1;
+    });
+    
+    let predicted = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    return { allDistances: distances, neighbors: neighbors, predicted: predicted };
+}
+
+function updateK(val) {
+    kValue = parseInt(val);
+    document.getElementById('k-display').innerText = kValue;
+    document.getElementById('card-desc-1').innerText = `กำหนดจำนวน K = ${kValue}`;
+    document.getElementById('card-desc-4').innerText = `เลือกเพื่อนบ้านใกล้สุด ${kValue} จุด`;
+    renderStep();
+}
+
+function changeStep(delta) {
+    currentStep += delta;
+    if (currentStep < 1) currentStep = 1;
+    if (currentStep > 5) currentStep = 5;
+    renderStep();
+}
+
+function resetSteps() {
+    currentStep = 1;
+    kValue = 3;
+    document.getElementById('k-slider').value = 3;
+    document.getElementById('k-display').innerText = 3;
+    document.getElementById('card-desc-1').innerText = `กำหนดจำนวน K = 3`;
+    document.getElementById('card-desc-4').innerText = `เลือกเพื่อนบ้านใกล้สุด 3 จุด`;
+    renderStep();
+}
+
+function renderStep() {
+    // อัปเดต UI ปุ่มและไฮไลต์การ์ด Step
+    document.getElementById('btn-prev').disabled = (currentStep === 1);
+    document.getElementById('btn-next').disabled = (currentStep === 5);
+    
+    for (let i = 1; i <= 5; i++) {
+        let el = document.getElementById(`card-step-${i}`);
+        if (i === currentStep) el.classList.add('active');
+        else el.classList.remove('active');
+    }
+
+    const knnResult = calculateKNN();
+    const colorMap = { 'A': '#EF4444', 'B': '#10B981', 'C': '#3B82F6' };
+
+    let traces = [];
+    let statusMsg = "";
+
+    // 1. Trace ข้อมูล Training Data แยกสีตาม Class
+    ['A', 'B', 'C'].forEach(lbl => {
+        let x_vals = [], y_vals = [];
+        for (let i = 0; i < dataPayload.y_train.length; i++) {
+            if (dataPayload.y_train[i] === lbl) {
+                x_vals.push(dataPayload.X_train_2d[i][0]);
+                y_vals.push(dataPayload.X_train_2d[i][1]);
+            }
+        }
+        traces.push({
+            x: x_vals,
+            y: y_vals,
+            mode: 'markers+text',
+            name: `Class ${lbl}`,
+            text: x_vals.map(() => lbl),
+            textposition: 'top center',
+            marker: { size: 14, color: colorMap[lbl], line: { width: 1, color: 'white' } }
+        });
+    });
+
+    // 2. ปรับการแสดงผลตาม Step
+    if (currentStep === 1) {
+        statusMsg = `ขั้นตอนที่ 1: กำหนดค่า K = <b>${kValue}</b> (สามารถเลื่อนสไลเดอร์เพื่อปรับค่า K ได้ตลอดเวลา)`;
+    } 
+    else if (currentStep >= 2) {
+        traces.push({
+            x: [dataPayload.test_2d[0]],
+            y: [dataPayload.test_2d[1]],
+            mode: 'markers+text',
+            name: 'Test Point',
+            text: [`Test Point ${JSON.stringify(dataPayload.test_raw)}`],
+            textposition: 'bottom center',
+            marker: { size: 22, color: '#F59E0B', symbol: 'star', line: { width: 2, color: 'black' } }
+        });
+        statusMsg = `ขั้นตอนที่ 2: นำเข้าจุด Test Point <b>${JSON.stringify(dataPayload.test_raw)}</b>`;
+    }
+
+    if (currentStep === 3) {
+        knnResult.allDistances.forEach(d => {
+            traces.push({
+                x: [dataPayload.test_2d[0], d.pos2d[0]],
+                y: [dataPayload.test_2d[1], d.pos2d[1]],
+                mode: 'lines',
+                line: { color: '#CBD5E1', width: 1, dash: 'dot' },
+                showlegend: false,
+                hoverinfo: 'text',
+                text: `Distance = ${d.dist.toFixed(3)}`
+            });
+        });
+        statusMsg = `ขั้นตอนที่ 3: คำนวณ Euclidean Distance จาก Test Point ไปยังจุด Training ทั้งหมด 15 จุด`;
+    }
+
+    if (currentStep >= 4) {
+        knnResult.neighbors.forEach((n, idx) => {
+            traces.push({
+                x: [dataPayload.test_2d[0], n.pos2d[0]],
+                y: [dataPayload.test_2d[1], n.pos2d[1]],
+                mode: 'lines',
+                line: { color: '#475569', width: 2.5, dash: 'dash' },
+                showlegend: false,
+                hoverinfo: 'text',
+                text: `Neighbor #${idx+1}: Dist=${n.dist.toFixed(3)} (Class ${n.label})`
+            });
+        });
+        statusMsg = `ขั้นตอนที่ 4: คัดเลือกเพื่อนบ้านที่ใกล้ที่สุด ${kValue} อันดับแรก (แสดงด้วยเส้นประเข้ม)`;
+    }
+
+    if (currentStep === 5) {
+        statusMsg = `ขั้นตอนที่ 5: โหวตเสียงข้างมาก (Majority Vote) ➡️ ผลการพยากรณ์คือ <b>Class ${knnResult.predicted}</b> (Actual: Class ${dataPayload.test_actual})`;
+    }
+
+    document.getElementById('status-text').innerHTML = statusMsg;
+
+    let layout = {
+        title: {
+            text: `<b>KNN Classification Visualization (K=${kValue})</b><br><sup>Step ${currentStep} of 5 | Test Point: ${JSON.stringify(dataPayload.test_raw)}</sup>`,
+            font: { size: 16, color: '#1E293B' }
+        },
+        xaxis: { title: 'PCA Component 1', zeroline: false },
+        yaxis: { title: 'PCA Component 2', zeroline: false },
+        template: 'plotly_white',
+        margin: { l: 40, r: 40, t: 60, b: 40 }
+    };
+
+    Plotly.newPlot('plotly-div', traces, layout);
+}
+
+// เริ่มรันแสดงผล
+renderStep();
+</script>
+</body>
+</html>
