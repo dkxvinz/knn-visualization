@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Nearest Neighbors Visualization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+        }
+        body {
+            background-color: #F8FAFC;
+            color: #334155;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 10px 0;
+        }
+        .header p {
+            font-size: 1.1rem;
+            color: #64748B;
+            margin: 0;
+        }
+
+        /* Concept Card */
+        .concept-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin-bottom: 25px;
+            border: 1px solid #F1F5F9;
+        }
+        .concept-card p {
+            line-height: 1.7;
+            font-size: 1rem;
+            color: #334155;
+            margin: 0 0 20px 0;
+        }
+        .concept-card b {
+            color: #09090B;
+        }
+
+        /* Steps Grid */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+        .step-item {
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 16px 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .step-item.active {
+            background: #EFF6FF;
+            border-color: #3B82F6;
+        }
+        .step-item .step-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #3B82F6;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .step-item .step-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 4px;
+        }
+        .step-item .step-desc {
+            font-size: 0.78rem;
+            color: #64748B;
+            line-height: 1.3;
+        }
+
+        /* Status Bar & Controls */
+        .control-bar {
+            background: #E2E8F0;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .status-text {
+            font-weight: 500;
+            color: #1E293B;
+            font-size: 0.95rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-disabled {
+            background: #94A3B8;
+            color: #FFFFFF;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: #2563EB;
+            color: #FFFFFF;
+        }
+        .btn-primary:hover {
+            background: #1D4ED8;
+        }
+        .btn-secondary {
+            background: #475569;
+            color: #FFFFFF;
+        }
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Plot Box */
+        .plot-container {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #F1F5F9;
+        }
+
+        @media (max-width: 900px) {
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 1. Header -->
+    <div class="header">
+        <h1>K-Nearest Neighbors Visualization</h1>
+        <p>จำลองกระบวนการทำงานของ KNN Classification (Interactive Step-by-Step Visualization)</p>
+    </div>
+
+    <!-- 2. Concept & Step Cards -->
+    <div class="concept-card">
+        <p><b>แนวคิด:</b> KNN เป็น Supervised Machine Learning สำหรับการจำแนกประเภทข้อมูล (Classification) โดยพิจารณาจากข้อมูลที่มีคุณลักษณะใกล้เคียงที่สุดจำนวน K จุด (Neighbors) คำนวณระยะห่างด้วย Euclidean Distance แล้วโหวตเสียงข้างมาก (Majority Vote) เพื่อกำหนดคลาสให้กับข้อมูลชุดใหม่</p>
+        
+        <div class="steps-grid">
+            <div class="step-item">
+                <span class="step-badge">STEP 1</span>
+                <div class="step-title">กำหนด K</div>
+                <div class="step-desc">เลือกจำนวนเพื่อนบ้าน เช่น K = 3</div>
+            </div>
+            <div class="step-item">
+                <span class="step-badge">STEP 2</span>
+                <div class="step-title">รับข้อมูลใหม่</div>
+                <div class="step-desc">นำเข้าจุด Test Point [5,5,5,5,5]</div>
+            </div>
+            <div class="step-item">
+                <span class="step-badge">STEP 3</span>
+                <div class="step-title">คำนวณระยะห่าง</div>
+                <div class="step-desc">หา Euclidean Distance ทุกจุด</div>
+            </div>
+            <div class="step-item">
+                <span class="step-badge">STEP 4</span>
+                <div class="step-title">คัดเลือก K อันดับ</div>
+                <div class="step-desc">เลือกเพื่อนบ้านที่ใกล้ที่สุด 3 จุด</div>
+            </div>
+            <div class="step-item active">
+                <span class="step-badge">STEP 5</span>
+                <div class="step-title">Majority Vote</div>
+                <div class="step-desc">โหวตคลาสเสียงข้างมาก</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Status Bar & Controls -->
+    <div class="control-bar">
+        <div class="status-text">ขั้นตอนที่ 5: ผลลัพธ์การทำนายพยากรณ์คือ <b>Class B</b></div>
+        <div class="btn-group">
+            <button class="btn btn-disabled" disabled>ถอยกลับ</button>
+            <button class="btn btn-primary">ขั้นตอนถัดไป</button>
+            <button class="btn btn-secondary" onclick="window.location.reload();">เริ่มต้นใหม่</button>
+        </div>
+    </div>
+
+    <!-- 4. Plotly Chart -->
+    <div class="plot-container">
+        <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>                <div id="c2f994ed-8a0b-4726-bb12-3a0e17526e1f" class="plotly-graph-div" style="height:550px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("c2f994ed-8a0b-4726-bb12-3a0e17526e1f")) {                    Plotly.newPlot(                        "c2f994ed-8a0b-4726-bb12-3a0e17526e1f",                        [{"marker":{"color":"#EF4444","line":{"color":"white","width":1},"size":14},"mode":"markers+text","name":"Class A","text":["A","A","A","A","A"],"textposition":"top center","x":[-9.113313852976132,-8.71785423155538,-8.166153903942638,-7.833618036494579,-9.09254358789431],"y":[-0.3746960077078141,1.513110187427945,-0.9115310775142934,0.3042804339296637,0.2023862899343658],"type":"scatter"},{"marker":{"color":"#10B981","line":{"color":"white","width":1},"size":14},"mode":"markers+text","name":"Class B","text":["B","B","B","B","B"],"textposition":"top center","x":[-0.9083975464797943,-0.5758616790317346,-0.6376237559054504,0.8552633770594117,0.4598037556386619],"y":[-0.9003048909875562,0.31550662045640043,1.0868255051864206,-0.2012048354322256,-2.089011030567985],"type":"scatter"},{"marker":{"color":"#3B82F6","line":{"color":"white","width":1},"size":14},"mode":"markers+text","name":"Class C","text":["C","C","C","C","C"],"textposition":"top center","x":[7.999025515580377,8.331561383028436,8.26979930615472,9.76268643911958,9.367226817698834],"y":[-0.3317394036635512,0.8840721077804056,1.6553909925104258,0.36736065189177963,-1.5204455432439805],"type":"scatter"},{"marker":{"color":"#F59E0B","line":{"color":"black","width":2},"size":22,"symbol":"star"},"mode":"markers+text","name":"Test Point","text":["Test Point [5, 5, 5, 5, 5]"],"textposition":"bottom center","x":[-4.082413261028329],"y":[-0.5056111930120799],"type":"scatter"},{"hoverinfo":"text","line":{"color":"#6B7280","dash":"dash","width":2},"mode":"lines","showlegend":false,"text":"Neighbor #1: Distance = 3.317 (Class B)","x":[-4.082413261028329,-0.9083975464797943],"y":[-0.5056111930120799,-0.9003048909875562],"type":"scatter"},{"hoverinfo":"text","line":{"color":"#6B7280","dash":"dash","width":2},"mode":"lines","showlegend":false,"text":"Neighbor #2: Distance = 3.742 (Class B)","x":[-4.082413261028329,-0.5758616790317346],"y":[-0.5056111930120799,0.31550662045640043],"type":"scatter"},{"hoverinfo":"text","line":{"color":"#6B7280","dash":"dash","width":2},"mode":"lines","showlegend":false,"text":"Neighbor #3: Distance = 4.000 (Class B)","x":[-4.082413261028329,-0.6376237559054504],"y":[-0.5056111930120799,1.0868255051864206],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"font":{"size":16,"color":"#1E293B"},"text":"\u003cb\u003eKNN Classification Visualization (K=3)\u003c\u002fb\u003e\u003cbr\u003e\u003csup\u003eTest Point: [5, 5, 5, 5, 5] | Predicted: Class B | Actual: Class B\u003c\u002fsup\u003e"},"margin":{"l":40,"r":40,"t":60,"b":40},"xaxis":{"title":{"text":"PCA Component 1"}},"yaxis":{"title":{"text":"PCA Component 2"}},"height":550},                        {"responsive": true}                    )                };                            </script>        </div>
+    </div>
+</div>
+
+</body>
+</html>
